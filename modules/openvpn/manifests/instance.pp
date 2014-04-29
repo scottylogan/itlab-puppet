@@ -1,3 +1,5 @@
+# Create an OpenVPN configuration / instance
+#
 define openvpn::instance(
   $ensure = 'present',
   $conf_template = 'openvpn/openvpn.conf.erb',

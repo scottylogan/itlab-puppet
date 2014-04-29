@@ -1,6 +1,11 @@
+# OpenVPN base class
+#
+# ensures the openvpn package is installed, and that the
+# configuration and log directories exist
 class openvpn {
+
   package {
-    'openvpn': ensure => present
+    'openvpn': ensure => present,
   }
 
   file {
@@ -30,12 +35,15 @@ class openvpn {
     refreshonly  => true,
     require      => Package['openvpn'],
   }
-  
+
   file {
     '/etc/openvpn/update-resolv-conf':
       ensure  => absent,
       require => Package['openvpn'],
   }
-  
+
+  base::sysctl {
+    'net.ipv4.ip_forward': ensure => 1;
+  }
 
 }
