@@ -9,27 +9,31 @@ class s3file::aws () {
 
   exec { 'pip aws install':
     command => 'pip install awscli',
-    path => [ '/bin', '/usr/bin', '/sbin', '/usr/sbin' ],
-    unless => '[ -e /usr/local/bin/aws ]'
+    path    => [ '/bin', '/usr/bin', '/sbin', '/usr/sbin' ],
+    unless  => '[ -e /usr/local/bin/aws ]'
   }
 
   file { 'root aws dir':
-    path    => '/root/.aws',
     ensure  => directory,
+    path    => '/root/.aws',
     owner   => 'root',
     group   => 'root',
   }
 
   file { 'aws config':
-    path    => '/root/.aws/config',
     ensure  => present,
+    path    => '/root/.aws/config',
     owner   => 'root',
     group   => 'root',
-    mode    => 0640,
+    mode    => '0640',
     content => "[default]\nregion = us-west-2\n",
   }
 
-  Package['python-pip'] -> Exec['pip aws install'] -> File['root aws dir'] -> File['aws config'] -> S3file<| |>
+  Package['python-pip']
+    -> Exec['pip aws install']
+      -> File['root aws dir']
+        -> File['aws config']
+          -> S3file<| |>
 
 }
 

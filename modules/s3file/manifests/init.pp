@@ -1,3 +1,5 @@
+# Use an S3 bucket as a file source
+
 define s3file (
   $source,
   $ensure = 'latest',
