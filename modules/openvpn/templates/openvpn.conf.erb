@@ -1,0 +1,22 @@
+remote <%= remote %>
+
+dev <%= tun_dev %>
+ifconfig <%= local_link_ip %> <%= remote_link_ip %>
+secret <%= shared_key_path %>
+
+keepalive 10 120
+
+persist-key
+persist-tun
+
+<% @routes.each do |route| -%>
+route <%= route[0] %> <%= route[1] %>
+<% end -%>
+
+status /var/log/openvpn/<%= name %>-status.log
+
+log-append  /var/log/openvpn/<%= name %>.log
+
+verb 3
+
+;mute 20
