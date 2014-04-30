@@ -5,7 +5,7 @@ class defaults {
           user::itlab-users,
           user::virtual
 
-  # Packages that all nodes get regardless of operating system.
+  # standard packages to add to every system
   package {
     [
       'less',
@@ -15,4 +15,36 @@ class defaults {
     ]:
       ensure => present,
   }
+
+  # standard packages to remove from every system
+  package {
+    [
+      'nano',
+    ]:
+      ensure => absent,
+  }
+  
+  if ($::virtual == 'virtualbox') {
+    # assume vagrant
+
+    ssh_authorized_key {
+      'vagrant insecure key':
+        ensure => present,
+        key    => 'AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ==',
+        type   => 'ssh-rsa',
+        user   => 'vagrant',
+    }
+  }
+
+  if ($::ec2_ami_id != '') {
+    # assume AWS, use itlab-aws key
+    ssh_authorized_key {
+      'itlab-aws':
+        ensure => present,
+        key    => 'AAAAB3NzaC1yc2EAAAADAQABAAABAQDGCoWDnYlWrEQP8e3S89wVvbnldZCw4NmmsHrjZtR2pGB3iGXA8HR8nHrrSOwDRbnX0WrD1TvJiDX3/NcmZMb0pcwIZWSzw09rGMBQ8b3eyN1PQONToWiWHvrDbChgeDWhZhOj2fyLT/N3K6Lxg0CXI7Az0rXEDWJgiwHKwW5vNJLLNIGBXDJUytqlQ5JtqTdL7q/mR5C5tpv/K6a+4zV35BHFgFoxp+houdlTzQwAwTCMZQj4+xyBh25EmRAygTShMae9UjmRMhrmlY5ZXF8iabNMLe9wbUZpoA2C4jqj+gokVzEP+f5Q+uzCdaZJYpESpmnWZMX/kmLb4QkkouPF',
+        type   => 'ssh-rsa',
+        user   => 'admin',
+    }
+  }
+
 }
