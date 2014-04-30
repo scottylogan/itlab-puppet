@@ -1,9 +1,6 @@
-class s_itlab_vpn {
+class s_itlab_vpn inherits defaults {
   include openvpn
-
-  package {
-    [ 'less', 'curl', 'tcpdump' ]:
-      ensure => 'present'
-  }
+  
+  $itlab_key = 'puppet:///modules/s_itlab_vpn/etc/openvpn/itlab.key'
 
 }

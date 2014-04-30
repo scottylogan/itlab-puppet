@@ -1,10 +1,9 @@
-class s_itlab_vpn::campus {
-  include s_itlab_vpn
+class s_itlab_vpn::campus inherits s_itlab_vpn {
 
   openvpn::instance {
     'itlab':
         remote             => 'vpc-vpn.itlab.stanford.edu',
-        shared_key_content => 'puppet:///modules/openvpn/itlab.key',
+        shared_key_content => $itlab_key,
         tun_dev            => 'tun1',
         local_link_ip      => '169.254.1.1',
         remote_link_ip     => '169.254.1.2',
