@@ -29,17 +29,8 @@ class user::virtual {
     ensure     => 'present',
     uid        => '1000',
     gid        => '1000',
-    comment    => 'AWS Admin',
+    comment    => 'Admin',
     home       => '/home/admin',
-    shell      => '/bin/bash',
-  }
-
-  @user { 'vagrant':
-    ensure     => 'present',
-    uid        => '1000',
-    gid        => '1000',
-    comment    => 'Vagrant Admin',
-    home       => '/home/vagrant',
     shell      => '/bin/bash',
   }
 
