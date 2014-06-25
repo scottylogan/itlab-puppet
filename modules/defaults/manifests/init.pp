@@ -1,8 +1,24 @@
 # Default behavior for all Puppet managed IT Lab systems
 
 class defaults {
-  include base::sudo,
+  include
+          base::cron,
+#          base::dns,
+#          base::iptables,
+          base::kerberos,
+#          base::newsyslog,
+          base::ntp,
+          base::os,
+          base::pam,
+          base::postfix,
+          base::ssh,
+          base::sudo,
+#          base::sysctl::tcp_keepalive,
+          base::syslog,
+          base::tmpclean,
           user::itlab-users,
+#          user::managed,
+#          user::root,
           user::virtual
 
   # standard packages to add to every system
@@ -12,6 +28,13 @@ class defaults {
       'bash',
       'curl',
       'dnsutils',
+      'cron',
+      'man-db',
+      'perl-doc',
+      'file',
+      'lsof',
+      'strace',
+      'xz-utils',
     ]:
       ensure => present,
   }
@@ -24,6 +47,10 @@ class defaults {
       ensure => absent,
   }
   
+#  base::iptables::fragment {
+#    'udp-established': ensure => present;
+#  }
+
   if ($::virtual == 'virtualbox') {
     # assume vagrant
 
@@ -47,4 +74,8 @@ class defaults {
     }
   }
 
+  # Set a default destination for root mail.
+  base::postfix::recipient { 'root@itlab.stanford.edu':
+    ensure => 'admin@itlab.stanford.edu',
+  }
 }
