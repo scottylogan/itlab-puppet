@@ -1,0 +1,100 @@
+#! /bin/sh
+
+#exec >>/tmp/verify.log
+#exec 2>&1
+
+client_pem=$1
+ca_dir=/etc/freeradius/certs/CA
+ca_pem=/etc/freeradius/certs/cloudpath-chain.pem
+ocsp_url=
+
+# for Comodo certs
+org="IT Lab TEST"
+
+# the newest entity in ca_dir should be a symlink, otherwise rehash
+ls -lrt ${ca_dir} | tail -1 | grep -q ' -> ' || c_rehash ${ca_dir}
+
+issuer_name=`openssl x509 -in ${client_pem} -noout -issuer | sed 's/^issuer= //'`
+issuer_hash=`openssl x509 -in ${client_pem} -noout -issuer_hash`
+
+# assume failure
+verified=1
+
+
+echo
+echo '========================================================================'
+echo Verification Starting at `date +%Y%m%dT%T%:z`
+echo
+echo Verifying cert with openssl
+openssl x509 -in ${client_pem} -noout -issuer | sed 's/^issuer=/     Issuer:/'
+openssl x509 -in ${client_pem} -noout -subject | sed 's/^subject=/    Subject:/'
+openssl verify -CAfile ${ca_pem} -purpose sslclient ${client_pem}
+verified=$?
+
+if [ $verified -eq 0 ]; then
+  echo Checking issuer ${issuer_name}
+
+  # assume failure
+
+  case "${issuer_hash}" in
+    "0c04dbf1")
+      # IT Lab CloudPath Root CA I
+      ocsp_url=http://onboard.cloudpath.net/admin/ocsp/checkCert
+      verified=0
+      ;;
+  
+    "d15fe053")
+      # IT Lab CloudPath Intermediate CA I
+      ocsp_url=http://onboard.cloudpath.net/admin/ocsp/checkCert
+      verified=0
+      ;;
+  
+    "db70ce9c")
+      # Comodo Test"
+      echo Checking organizationName with openssl
+      openssl x509 -in ${client_pem} -noout -subject -nameopt multiline | egrep -q "^ +organizationName += +${org}\$"
+      verified=$?
+      ;;
+
+    *)
+      echo "Unknown Issuer"
+      verified=1
+    ;;
+  esac
+fi
+
+if [ $verified -eq 0 ]; then
+
+  ## OCSP
+  if [ -z "${ocsp_url}" ]; then
+    echo Skipping OCSP for ${issuer_name}
+  else
+    openssl ocsp \
+      -CApath ${ca_dir} \
+      -issuer ${ca_dir}/${issuer_hash}.0 \
+      -url http://onboard.cloudpath.net/admin/ocsp/checkCert \
+      -cert ${client_pem} 2>&1 |\
+    grep -q "^${client_pem}: good\$"
+    verified=$?
+
+    if [ ${verified} -eq 0 ]; then
+      echo OCSP check succeeded
+    else
+      echo OCSP check failed
+    fi
+  fi
+fi
+
+if [ $verified -eq 0 ]; then
+  echo Verification Succeeded
+else
+  echo Verification Failed
+fi
+
+echo
+echo Verification Completed at `date +%Y%m%dT%T%:z`
+echo
+echo '========================================================================'
+echo
+exit $verified
+

@@ -1,0 +1,72 @@
+#	Read "man radiusd" before editing this file. 
+
+authorize {
+	preprocess
+	auth_log
+	suffix
+	eap {
+		ok = return
+	}
+	files
+	expiration
+	logintime
+}
+
+
+#  This section lists which modules are available for authentication.
+
+authenticate {
+	#  Allow EAP authentication.
+	eap
+}
+
+
+#  Pre-accounting.  Decide which accounting type to use.
+preacct {
+	preprocess
+	acct_unique
+	suffix
+	files
+}
+
+#  Accounting.  Log the accounting data.
+accounting {
+	detail
+	radutmp
+
+	# For Exec-Program and Exec-Program-Wait
+	exec
+
+	#  Filter attributes from the accounting response.
+	attr_filter.accounting_response
+}
+
+
+#  Session database, used for checking Simultaneous-Use.
+session {
+	radutmp
+}
+
+
+#  Post-Authentication
+#  Once we KNOW that the user has been authenticated, there are
+#  additional steps we can take.
+post-auth {
+	reply_log
+
+	# For Exec-Program and Exec-Program-Wait
+	exec
+
+	#  Access-Reject packets are sent through the REJECT sub-section of the
+	#  post-auth section.
+	#
+	Post-Auth-Type REJECT {
+		attr_filter.access_reject
+	}
+}
+
+
+post-proxy {
+	eap
+}
+

@@ -1,0 +1,42 @@
+# -*- text -*-
+##
+##  eap.conf -- Configuration for EAP types (PEAP, TTLS, etc.)
+##
+
+eap {
+  default_eap_type              = tls
+	timer_expire                  = 60
+	ignore_unknown_eap_types      = no
+	cisco_accounting_username_bug = no
+	max_sessions                  = 4096
+
+	# Supported EAP-types
+
+	## EAP-TLS
+	tls {
+		certdir          = ${confdir}/certs
+		cadir            = ${confdir}/certs
+		private_key_file = ${certdir}/server.key
+		certificate_file = ${certdir}/server.pem
+		CA_file          = ${cadir}/ca.pem
+		dh_file          = ${certdir}/dh
+		random_file      = /dev/urandom
+		fragment_size    = 1024
+		cipher_list      = "DEFAULT"
+		ecdh_curve       = "prime256v1"
+
+		cache {
+      enable = no
+		}
+
+		verify {
+			tmpdir = /var/tmp/freeradius
+			client = "/etc/freeradius/cert-verify %{TLS-Client-Cert-Filename}"
+		}
+
+		ocsp {
+      enable = no
+		}
+	}
+
+}

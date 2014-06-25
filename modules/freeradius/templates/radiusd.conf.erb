@@ -1,0 +1,132 @@
+# -*- text -*-
+##
+## radiusd.conf	-- FreeRADIUS server configuration file.
+##
+
+prefix        = /usr
+exec_prefix   = /usr
+sysconfdir    = /etc
+localstatedir = /var
+sbindir       = ${exec_prefix}/sbin
+logdir        = <%= logdir %>
+raddbdir      = <%= dbdir %>
+radacctdir    = ${logdir}/radacct
+
+#  name of the running server.  See also the "-n" command-line option.
+name = freeradius
+
+#  Location of config and logfiles.
+confdir = ${raddbdir}
+run_dir = <%= rundir %>
+
+# Should likely be ${localstatedir}/lib/radiusd
+db_dir = ${raddbdir}
+
+# libdir: Where to find the rlm_* modules.
+libdir = /usr/lib/freeradius
+
+#  pidfile: Where to place the PID of the RADIUS server.
+pidfile = ${run_dir}/${name}.pid
+
+#  chroot: directory where the server does "chroot".
+#chroot = /path/to/chroot/directory
+
+# user/group: The name (or #number) of the user/group to run radiusd as.
+user  = <%= user %>
+group = <%= group %>
+
+#  max_request_time: The maximum time (in seconds) to handle a request.
+max_request_time = 30
+
+#  cleanup_delay: The time to wait (in seconds) before cleaning up
+#  a reply which was sent to the NAS.
+cleanup_delay = 5
+
+#  max_requests: The maximum number of requests which the server keeps
+#  track of.  This should be 256 multiplied by the number of clients.
+#  e.g. With 4 clients, this number should be 1024.
+max_requests = 1024
+
+#  listen: Make the server listen on a particular IP address, and send
+#  replies out from that address. This directive is most useful for
+#  hosts with multiple IP addresses on one interface.
+
+$INCLUDE listeners/
+
+hostname_lookups = no
+
+#  Core dumps are a bad thing.  This should only be set to 'yes'
+#  if you're debugging a problem with the server.
+allow_core_dumps = no
+
+#  Regular expressions
+regular_expressions  = yes
+extended_expressions = yes
+
+#  Logging section.  The various "log_*" configuration items
+#  will eventually be moved here.
+log {
+	destination = files
+	file        = ${logdir}/radius.log
+	requests    = ${logdir}/radiusd-%%{%%{Virtual-Server}:-DEFAULT}-%%Y%%m%%d.log
+
+	#  Log the full User-Name attribute, as it was found in the request.
+	stripped_names = no
+
+	#  Log authentication requests to the log file.
+	auth = yes
+
+	#  Log passwords with the authentication requests.
+	#  auth_badpass  - logs password if it's rejected
+	#  auth_goodpass - logs password if it's correct
+	auth_badpass  = no
+	auth_goodpass = no
+
+}
+
+#  The program to execute to do concurrency checks.
+checkrad = ${sbindir}/checkrad
+
+# SECURITY CONFIGURATION
+#
+#  There may be multiple methods of attacking on the server.  This
+#  section holds the configuration items which minimize the impact
+#  of those attacks
+#
+security {
+	max_attributes = 200
+	reject_delay = 1
+	status_server = yes
+}
+
+#  proxy_requests: Turns proxying of RADIUS requests on or off.
+proxy_requests  = no
+
+#  Client configuration is defined in files under "clients/".  
+$INCLUDE clients/
+
+#  The thread pool is a long-lived group of threads which
+#  take turns (round-robin) handling any incoming requests.
+thread pool {
+	start_servers = 5
+	max_servers = 32
+	min_spare_servers = 3
+	max_spare_servers = 10
+	max_requests_per_server = 0
+}
+
+# MODULE CONFIGURATION
+modules {
+
+}
+
+# Instantiation
+
+instantiate {
+	exec
+	expiration
+	logintime
+}
+
+$INCLUDE policy.conf
+$INCLUDE sites-enabled/

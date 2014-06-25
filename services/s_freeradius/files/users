@@ -1,0 +1,12 @@
+#
+# Deny access for a specific user.  Note that this entry MUST
+# be before any other 'Auth-Type' attribute which results in the user
+# being authenticated.
+#
+# Note that there is NO 'Fall-Through' attribute, so the user will not
+# be given any additional resources.
+#
+
+DEFAULT		Auth-Type := EAP
+
+

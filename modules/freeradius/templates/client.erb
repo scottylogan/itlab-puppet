@@ -1,0 +1,12 @@
+client <%= name %> {
+  ipaddr         = <%= ipaddr %>
+  netmask        = <%= netmask %>
+  <% if shortname != 'NOCONTENT' -%>
+  shortname      = <%= shortname %>
+  <% end -%>
+  nastype        = <%= nastype %>
+  <% if virtual_server != 'NOCONTENT' -%>
+  virtual_server = <%= virtual_server %>
+  <% end -%>
+  secret         = <%= secret %>
+}

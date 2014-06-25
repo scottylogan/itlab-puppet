@@ -1,0 +1,24 @@
+# Listener <%= name %>
+listen {
+  <% if listener_type == 'NOCONTENT' -%>
+  type   = auth
+  <% else -%>
+	type   = <%= listener_type %>
+  <% end -%>
+  <% if ipaddr != 'NOCONTENT' -%>
+	ipaddr = <%= ipaddr %>
+  <% elsif interface != 'NOCONTENT' -%>
+  interface = <%= interface %>
+  <% else -%>
+  ipaddr = 0.0.0.0
+  <% end -%>
+  <% if port == 'NOCONTENT' -%>
+  port   = 0
+  <% else -%>
+	port   = <%= port -%>
+  <% end -%>
+  <% if clients != 'NOCONTENT' -%>
+  clients = <%= clients %>
+  <% end -%>
+
+}
