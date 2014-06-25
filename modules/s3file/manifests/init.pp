@@ -3,7 +3,7 @@
 define s3file (
   $source,
   $ensure = 'latest',
-  $s3_bucket = 's3://itlab-puppet'
+  $s3_bucket = 's3://itlab-config'
 )
 {
   if $ensure == 'absent' {
